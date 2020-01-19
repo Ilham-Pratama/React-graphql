@@ -1,4 +1,6 @@
 .eslintrc.json
+jest.config.json
+jest.setup.js
 /node_modules
 /test
 /app/App.js
