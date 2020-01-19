@@ -1,4 +1,5 @@
 .eslintrc.json
+graphql.doc
 jest.config.json
 jest.setup.js
 /node_modules
