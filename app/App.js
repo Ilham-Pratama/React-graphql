@@ -13,7 +13,7 @@ const initialData = {
   error: null
 };
 
-const Project = () => {
+const App = () => {
   const state = useReducer(dataReducer, initialData);
   const repoRef = useRef();
 
@@ -48,4 +48,4 @@ const Project = () => {
   );
 };
 
-export default Project;
+export default App;
