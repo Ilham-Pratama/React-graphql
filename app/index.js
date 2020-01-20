@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDom from 'react-dom';
-import Project from './App';
+import App from './App';
 import './Style/main.css';
 import axios from 'axios';
 
@@ -11,4 +11,4 @@ const axiosGithubGraphQL = axios.create({
   }
 });
 
-ReactDom.render(<Project />, document.getElementById('root'));
+ReactDom.render(<App />, document.getElementById('root'));
