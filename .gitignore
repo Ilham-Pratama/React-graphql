@@ -1,9 +1,2 @@
-.eslintrc.json
-graphql.doc
-jest.config.json
-jest.setup.js
 /node_modules
-/test
-/app/App.js
-/app/Chunks
-/app/Assets
+.env

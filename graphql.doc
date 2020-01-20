@@ -1,0 +1,54 @@
+query organizationForLearningReact(
+  $organization: String!,
+  $repository: String!,
+  $showFork: Boolean!,
+	) {
+  rwieruch: organization(login: $organization) {
+    ...sharedOrganizationField
+  }
+}
+
+mutation AddStar($repoId: ID!){
+  addStar(input: { starrableId: $repoId }){
+    starrable{
+      id
+      viewerHasStarred
+    }
+  }
+}
+
+mutation RemoveStar($repoId: ID!){
+  removeStar(input: { starrableId: $repoId }){
+    starrable{
+      id
+      viewerHasStarred
+    }
+  }
+}
+
+fragment sharedOrganizationField on Organization {
+  name
+  url
+  description
+  repository(name: $repository){
+    name
+    id
+    url
+    forkCount @include(if: $showFork)
+    description
+  }
+  repositories(last: 2, after: "Y3Vyc29yOnYyOpHOBGhimw=="){
+    totalCount
+    edges{
+      node{
+        name
+        url
+        forkCount
+      }
+    }
+    pageInfo{
+      endCursor
+      hasNextPage
+    }
+  }
+}
