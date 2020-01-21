@@ -32,11 +32,47 @@ const dataReducer = (state, action) => {
 };
 
 const initialData = {
-  path: 'the-road-to-learn-react/the-road-to-learn-react',
+  path: 'facebook/create-react-app',
   organization: null,
   errors: null
 };
 
+const getIssuesQuery = (organization, repository, endCursor) =>
+  axiosGithubGraphQL.post('', {
+    query: getOrganizationAndRepository,
+    variables: { organization, repository, endCursor }
+  });
+
+const resolveIssuesQuery = (dispatch, res, state, cursor) => {
+  if (!cursor) {
+    return dispatch({
+      type: actionTypes.SET_DATA,
+      payload: {
+        organization: res.data.data.organization,
+        errors: res.data.errors
+      }
+    });
+  }
+  dispatch({
+    type: actionTypes.SET_DATA,
+    payload: {
+      organization: {
+        ...res.data.data.organization,
+        repository: {
+          ...res.data.data.organization.repository,
+          issues: {
+            ...res.data.data.organization.repository.issues,
+            edges: [
+              ...state.organization.repository.issues.edges,
+              ...res.data.data.organization.repository.issues.edges
+            ]
+          }
+        }
+      },
+      errors: res.data.errors
+    }
+  });
+};
 const App = () => {
   const [data, dispatch] = useReducer(dataReducer, initialData);
   const repoRef = useRef();
@@ -44,24 +80,18 @@ const App = () => {
   const onSubmit = e => {
     e.preventDefault();
   };
-  const fetchFromGithub = () => {
-    axiosGithubGraphQL
-      .post('', {
-        query: getOrganizationAndRepository(...data.path.split('/'))
-      })
-      .then(res => {
-        dispatch({
-          type: actionTypes.SET_DATA,
-          payload: {
-            organization: res.data.data.organization,
-            errors: res.data.errors
-          }
-        });
-      });
+  const fetchFromGithub = (org, repo, cursor, currentData) => {
+    getIssuesQuery(org, repo, cursor).then(res => {
+      resolveIssuesQuery(dispatch, res, currentData, cursor);
+    });
+  };
+  const fetchMoreIssues = () => {
+    const { endCursor } = data.organization.repository.issues.pageInfo;
+    fetchFromGithub(...data.path.split('/'), endCursor, data);
   };
 
   useEffect(() => {
-    fetchFromGithub();
+    fetchFromGithub(...data.path.split('/'));
   }, []);
 
   return (
@@ -80,7 +110,11 @@ const App = () => {
           Search Repo
         </button>
       </form>
-      <Organization organization={data.organization} errors={data.errors} />
+      <Organization
+        organization={data.organization}
+        errors={data.errors}
+        fetchMoreIssues={fetchMoreIssues}
+      />
     </div>
   );
 };

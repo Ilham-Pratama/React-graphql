@@ -2,7 +2,7 @@ import React from 'react';
 import Repository from './repository';
 import Issues from './issues';
 
-const Organization = ({ organization, errors }) => {
+const Organization = ({ organization, errors, fetchMoreIssues }) => {
   const isLoading = !organization & !errors;
   if (isLoading) {
     return <h3>Please wait...</h3>;
@@ -22,7 +22,10 @@ const Organization = ({ organization, errors }) => {
         <a href={organization.url}>{organization.name}</a> <br />
         <Repository repository={organization.repository} />
       </p>
-      <Issues issues={organization.repository.issues.edges} />
+      <Issues
+        issues={organization.repository.issues}
+        fetchMoreIssues={fetchMoreIssues}
+      />
     </div>
   );
 };

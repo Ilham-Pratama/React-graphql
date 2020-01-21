@@ -7,22 +7,34 @@ export const axiosGithubGraphQL = axios.create({
   }
 });
 
-export const getOrganizationAndRepository = (organization, repository) =>
-  `
-    {
-      organization(login: "${organization}") {
+export const getOrganizationAndRepository = `
+    query($organization: String!, $repository: String!, $endCursor: String){
+      organization(login: $organization) {
         name
         url 
-        repository(name: "${repository}"){
+        repository(name: $repository){
           name
           url
-          issues(last: 5){
+          issues(first: 5, states: [OPEN], after: $endCursor){
             edges{
               node{
                 id
                 title
                 url
+                reactions(last: 3){
+                  edges{
+                    node{
+                      id
+                      content
+                    }
+                  }
+                }
               }
+            }
+            totalCount
+            pageInfo{
+              endCursor
+              hasNextPage
             }
           }
         }
