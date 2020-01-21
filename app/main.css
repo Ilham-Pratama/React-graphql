@@ -90,7 +90,13 @@
 
 body {
   font-family: 'Raleway-regular';
+  margin: 0;
+  padding: 0;
   color: #3d3d3d;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  text-decoration: none;
 }

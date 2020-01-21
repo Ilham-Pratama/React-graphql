@@ -7,11 +7,25 @@ export const axiosGithubGraphQL = axios.create({
   }
 });
 
-export const GET_ORGANIZATION = `
-  {
-    organization(login: "the-road-to-learn-react") {
-      name
-      url
+export const getOrganizationAndRepository = (organization, repository) =>
+  `
+    {
+      organization(login: "${organization}") {
+        name
+        url 
+        repository(name: "${repository}"){
+          name
+          url
+          issues(last: 5){
+            edges{
+              node{
+                id
+                title
+                url
+              }
+            }
+          }
+        }
+      }
     }
-  }
-`;
+  `;
