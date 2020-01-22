@@ -13,8 +13,13 @@ export const getOrganizationAndRepository = `
         name
         url 
         repository(name: $repository){
+          id
+          viewerHasStarred
           name
           url
+          stargazers{
+            totalCount
+          }
           issues(first: 5, states: [OPEN], after: $endCursor){
             edges{
               node{
@@ -41,3 +46,20 @@ export const getOrganizationAndRepository = `
       }
     }
   `;
+
+export const repositoryStarMutation = hasStarred => {
+  const query = !hasStarred
+    ? `addStar (input: {starrableId: $id}){
+      starrable{
+        viewerHasStarred
+      }
+    }`
+    : `removeStar (input: {starrableId: $id}){
+      starrable{
+        viewerHasStarred
+      }
+    }`;
+  return `mutation($id: ID! ){
+    ${query}
+  }`;
+};

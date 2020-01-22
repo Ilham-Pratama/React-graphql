@@ -1,9 +1,14 @@
 import React, { useRef, useEffect, useReducer } from 'react';
-import { axiosGithubGraphQL, getOrganizationAndRepository } from './configs';
+import {
+  axiosGithubGraphQL,
+  getOrganizationAndRepository,
+  repositoryStarMutation
+} from './configs';
 import Organization from './Components/organization';
 
 export const actionTypes = {
   SET_DATA: 'SET_DATA',
+  SET_REPO_MUTATION: 'SET_REPO_MUTATION',
   SET_ORG_PATH: 'SET_ORGANIZATION_PATH',
   SET_REPO_PATH: 'SET_REPO_PATH'
 };
@@ -13,7 +18,7 @@ const dataReducer = (state, action) => {
     return {
       ...state,
       organization: action.payload.organization,
-      errors: action.payload.errors
+      errors: action.payload.errors || state.errors
     };
   }
   if (action.type === actionTypes.SET_ORG_PATH) {
@@ -42,6 +47,31 @@ const getIssuesQuery = (organization, repository, endCursor) =>
     query: getOrganizationAndRepository,
     variables: { organization, repository, endCursor }
   });
+
+const getRepositoryStarMutationQuery = (id, hasStarred) =>
+  axiosGithubGraphQL.post('', {
+    query: repositoryStarMutation(hasStarred),
+    variables: { id, hasStarred }
+  });
+
+const resolveRepositoryStarMutationQuery = (dispatch, organization) => {
+  // const { viewerHasStarred } = res.data.data[
+  //   hasStarred ? 'removeStar' : 'addStar'
+  // ].starrable;
+  const { viewerHasStarred } = organization.repository;
+  dispatch({
+    type: actionTypes.SET_DATA,
+    payload: {
+      organization: {
+        ...organization,
+        repository: {
+          ...organization.repository,
+          viewerHasStarred: !viewerHasStarred
+        }
+      }
+    }
+  });
+};
 
 const resolveIssuesQuery = (dispatch, res, state, cursor) => {
   if (!cursor) {
@@ -85,6 +115,10 @@ const App = () => {
       resolveIssuesQuery(dispatch, res, currentData, cursor);
     });
   };
+  const fetchStarMutation = hasStarred => {
+    getRepositoryStarMutationQuery(data.organization.repository.id, hasStarred);
+    resolveRepositoryStarMutationQuery(dispatch, data.organization);
+  };
   const fetchMoreIssues = () => {
     const { endCursor } = data.organization.repository.issues.pageInfo;
     fetchFromGithub(...data.path.split('/'), endCursor, data);
@@ -114,6 +148,7 @@ const App = () => {
         organization={data.organization}
         errors={data.errors}
         fetchMoreIssues={fetchMoreIssues}
+        fetchStarMutation={fetchStarMutation}
       />
     </div>
   );
