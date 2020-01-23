@@ -26,14 +26,6 @@ export const getOrganizationAndRepository = `
                 id
                 title
                 url
-                reactions(last: 3){
-                  edges{
-                    node{
-                      id
-                      content
-                    }
-                  }
-                }
               }
             }
             totalCount

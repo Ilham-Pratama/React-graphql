@@ -54,11 +54,14 @@ const getRepositoryStarMutationQuery = (id, hasStarred) =>
     variables: { id, hasStarred }
   });
 
-const resolveRepositoryStarMutationQuery = (dispatch, organization) => {
+const resolveRepositoryStarMutationQuery = (
+  dispatch,
+  organization,
+  hasStarred
+) =>
   // const { viewerHasStarred } = res.data.data[
   //   hasStarred ? 'removeStar' : 'addStar'
   // ].starrable;
-  const { viewerHasStarred } = organization.repository;
   dispatch({
     type: actionTypes.SET_DATA,
     payload: {
@@ -66,12 +69,11 @@ const resolveRepositoryStarMutationQuery = (dispatch, organization) => {
         ...organization,
         repository: {
           ...organization.repository,
-          viewerHasStarred: !viewerHasStarred
+          viewerHasStarred: !hasStarred
         }
       }
     }
   });
-};
 
 const resolveIssuesQuery = (dispatch, res, state, cursor) => {
   if (!cursor) {
@@ -117,10 +119,10 @@ const App = () => {
   };
   const fetchStarMutation = hasStarred => {
     getRepositoryStarMutationQuery(data.organization.repository.id, hasStarred);
-    resolveRepositoryStarMutationQuery(dispatch, data.organization);
+    resolveRepositoryStarMutationQuery(dispatch, data.organization, hasStarred);
   };
   const fetchMoreIssues = () => {
-    const { endCursor } = data.organization.repository.issues.pageInfo;
+    const { endCursor } = data.organization.repository.issues.pageInfso;
     fetchFromGithub(...data.path.split('/'), endCursor, data);
   };
 
